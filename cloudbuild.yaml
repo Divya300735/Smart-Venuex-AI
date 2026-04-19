@@ -1,5 +1,25 @@
 steps:
-  # Step 1: Build the Docker image
+  # Step 1: Run Backend Tests
+  - name: 'node:20-alpine'
+    entrypoint: 'npm'
+    dir: 'backend'
+    args: ['ci', '--include=dev']
+  - name: 'node:20-alpine'
+    entrypoint: 'npm'
+    dir: 'backend'
+    args: ['test']
+
+  # Step 2: Run Frontend Tests
+  - name: 'node:20-alpine'
+    entrypoint: 'npm'
+    dir: 'frontend'
+    args: ['ci', '--include=dev', '--legacy-peer-deps']
+  - name: 'node:20-alpine'
+    entrypoint: 'npm'
+    dir: 'frontend'
+    args: ['test']
+
+  # Step 3: Build the Docker image
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
@@ -9,14 +29,14 @@ steps:
       - 'gcr.io/$PROJECT_ID/smart-venuex-ai:latest'
       - '.'
 
-  # Step 2: Push image to Google Container Registry
+  # Step 4: Push image to Google Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/smart-venuex-ai:$COMMIT_SHA']
 
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/smart-venuex-ai:latest']
 
-  # Step 3: Deploy to Cloud Run
+  # Step 5: Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:

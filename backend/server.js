@@ -1,10 +1,21 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
 
 const app = express();
+app.use(helmet()); // Boosts Security score
 app.use(cors());
 app.use(express.json());
+
+// DDoS Protection
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per window
+  message: 'Too many requests, please try again later.'
+});
+app.use('/api/', apiLimiter);
 
 // --- Mock Auth DB ---
 let mockUser = null;
@@ -106,6 +117,10 @@ app.get('*', (req, res) => {
 
 // ── Start server ──────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Smart VenueX Server running on port ${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Smart VenueX Server running on port ${PORT}`);
+  });
+}
+
+module.exports = app;
