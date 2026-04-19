@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { db } from '../lib/firebase';
-import { collection, onSnapshot, doc, setDoc } from 'firebase/firestore';
+import { collection, onSnapshot, doc, setDoc, addDoc } from 'firebase/firestore';
 
 const VenueContext = createContext();
 
@@ -22,23 +22,12 @@ const MOCK_FRIENDS = [
 ];
 
 export function VenueProvider({ children }) {
-  const [densities, setDensities] = useState(() => {
-      try {
-          const cached = localStorage.getItem('cached_densities');
-          if (cached) return JSON.parse(cached);
-      } catch(e) {}
-      return {};
-  });
+  const [densities, setDensities] = useState({});
   const [predictions, setPredictions] = useState({}); // Predictive AI Flow Store
   const [suggestions, setSuggestions] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const [score, setScore] = useState(0);
-  const [friends, setFriends] = useState(() => {
-      try {
-          const cached = localStorage.getItem('cached_friends');
-          return cached ? JSON.parse(cached) : MOCK_FRIENDS;
-      } catch(e) { return MOCK_FRIENDS; }
-  });
+  const [friends, setFriends] = useState([]);
   const [lastUpdate, setLastUpdate] = useState(null);
 
   // Velocity tracking ref to calculate future crowd density
@@ -120,19 +109,14 @@ export function VenueProvider({ children }) {
      setPredictions(newPredictions);
      setSuggestions(generatedSuggestions);
      
-     // Cache securely for offline resilient mode
-     try {
-         localStorage.setItem('cached_densities', JSON.stringify(newDensities));
-     } catch(e){}
   };
 
   useEffect(() => {
-    // Attempt Firebase Subscription
-    let unsubscribe = null;
+    let unsubscribeZones = null;
+    let unsubscribeFriends = null;
     try {
         const zonesRef = collection(db, 'zones');
-        unsubscribe = onSnapshot(zonesRef, (snapshot) => {
-            if (snapshot.empty) throw new Error("No remote data");
+        unsubscribeZones = onSnapshot(zonesRef, (snapshot) => {
             const d = {};
             snapshot.forEach(doc => {
                d[doc.id] = doc.data().density || 0;
@@ -141,25 +125,35 @@ export function VenueProvider({ children }) {
             setLastUpdate(new Date());
             runRuleBasedAISimulation(d);
         }, (err) => {
-           console.warn("Firestore listener failed, failing over to autonomous simulation.");
+           console.warn("Firestore zones listener failed:", err.message);
         });
+
+        const friendsRef = collection(db, 'friends');
+        unsubscribeFriends = onSnapshot(friendsRef, (snapshot) => {
+            const fList = [];
+            snapshot.forEach(doc => {
+               fList.push({ id: doc.id, ...doc.data() });
+            });
+            setFriends(fList);
+        }, (err) => {
+           console.warn("Firestore friends listener failed:", err.message);
+        });
+
     } catch (e) {
-        console.warn("Initializing Autonomous Predictive Engine Base.");
+        console.warn("Failed to initialize Firebase listeners, running simulation.", e);
     }
 
     // AUTONOMOUS OFFLINE STANDBY ENGINE
     const simInterval = setInterval(() => {
-        // Randomly simulate friends moving slightly
         setFriends(prev => {
-            const next = prev.map(f => {
+            if(prev.length === 0) return MOCK_FRIENDS; // keep UI alive
+            return prev.map(f => {
                if (Math.random() > 0.8) {
                    const newZone = MOCK_ZONES[Math.floor(Math.random() * MOCK_ZONES.length)];
                    return { ...f, currentZone: newZone.id, zoneName: newZone.label };
                }
                return f;
             });
-            localStorage.setItem('cached_friends', JSON.stringify(next));
-            return next;
         });
 
         setDensities(prev => {
@@ -172,7 +166,6 @@ export function VenueProvider({ children }) {
                     let v = (next[z.id] || 30) + shift;
                     if (v < 5) v = 5;
                     if (v > 98) v = 98;
-                    // Trigger a spike randomly to trace Predictive Flow capabilities
                     if (Math.random() > 0.95 && z.id === 'gate-a') v += Math.random() * 8;
                     next[z.id] = v;
                 });
@@ -184,27 +177,29 @@ export function VenueProvider({ children }) {
     }, 4000);
 
     return () => {
-        if(unsubscribe) unsubscribe();
+        if(unsubscribeZones) unsubscribeZones();
+        if(unsubscribeFriends) unsubscribeFriends();
         clearInterval(simInterval);
     };
   }, []);
 
-  const addFriend = (name) => {
+  const addFriend = async (name) => {
     if (!name) return;
     const avatars = ['🧑', '👨‍🚀', '🦸', '🥷', '👩‍🎤', '🕵️'];
     const randomZone = MOCK_ZONES[Math.floor(Math.random() * MOCK_ZONES.length)];
     const newFriend = {
-       id: `f-${Date.now()}`,
        name,
        avatar: avatars[Math.floor(Math.random() * avatars.length)],
        currentZone: randomZone.id,
-       zoneName: randomZone.label
+       zoneName: randomZone.label,
+       addedAt: new Date().toISOString()
     };
-    setFriends(prev => {
-        const next = [...prev, newFriend];
-        localStorage.setItem('cached_friends', JSON.stringify(next));
-        return next;
-    });
+    try {
+       await addDoc(collection(db, 'friends'), newFriend);
+    } catch (e) {
+       console.warn("Adding friend locally due to missing keys.");
+       setFriends(prev => [...prev, {id: `f-${Date.now()}`, ...newFriend}]);
+    }
   };
 
   return (

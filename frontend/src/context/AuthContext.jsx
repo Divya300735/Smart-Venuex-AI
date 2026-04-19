@@ -37,9 +37,7 @@ export function AuthProvider({ children }) {
           }
         } catch (err) {
           console.warn("Firestore offline bypass active:", err.message);
-          // Load from simulated local storage
-          const sim = JSON.parse(localStorage.getItem('sim_user') || '{}');
-          setProfile({ ...sim, ticketVerified: false });
+          setProfile({ email: currentUser?.email || 'test@test.com', name: 'Fan', role: 'user', ticketVerified: false });
         }
       } else {
         setProfile(null);
@@ -53,15 +51,13 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
-      toast.success("Successfully logged into cloud.");
       return cred.user;
     } catch (err) {
-      console.warn("Attempting offline simulation login due to Firebase key absence/error:", err.message);
-      // Offline Simulation Hackathon bypass
-      setUser({ email, displayName: 'Fan' });
+      console.warn("Firebase Login Error. Using Simulation Bypass.", err.message);
+      const fakeUser = { uid: 'mock-auth-uid', email, displayName: 'Fan' };
+      setUser(fakeUser);
       setProfile({ email, name: 'Fan', role: 'user', ticketVerified: false });
-      localStorage.setItem('sim_user', JSON.stringify({ email, name: 'Fan', role: 'user' }));
-      return { email };
+      return fakeUser;
     }
   };
 
@@ -75,22 +71,22 @@ export function AuthProvider({ children }) {
       
       return cred.user;
     } catch (err) {
-      console.warn("Attempting offline simulation signup:", err.message);
-      // Offline Simulation Hackathon bypass
-      localStorage.setItem('sim_user', JSON.stringify({ email, name: firstName, role: 'user' }));
-      return { email };
+      console.warn("Firebase Signup Error. Using Simulation Bypass.", err.message);
+      const fakeUser = { uid: 'mock-auth-uid', email, displayName: firstName };
+      setUser(fakeUser);
+      setProfile({ email, name: firstName, role: 'user', ticketVerified: false });
+      return fakeUser;
     }
   };
 
   const logout = async () => {
     try {
-      signOut(auth).catch(() => {});
+      await signOut(auth);
     } catch (e) {
-      console.warn(e);
+      console.error("Logout error:", e.message);
     } finally {
       setUser(null);
       setProfile(null);
-      localStorage.removeItem('sim_user');
     }
   };
 
@@ -132,8 +128,8 @@ export function AuthProvider({ children }) {
       throw new Error("Ticket ID mapping failed.");
       
     } catch (err) {
-       console.warn("Falling back to simulation verification:", err.message);
-       if (err.message.includes('already scanned')) throw err; // Don't bypass intentional logic errors
+       console.warn("Firebase Ticket Verification Error. Using Simulation.", err.message);
+       if (err.message.includes('already scanned')) throw err;
        
        const gates = ['Gate A', 'Gate B', 'Gate C', 'Gate D', 'VIP Entrance'];
        const zones = ['east-stand', 'west-stand', 'north-stand', 'south-stand', 'vip-lounge'];
@@ -147,17 +143,12 @@ export function AuthProvider({ children }) {
        }
        const idx = sum % gates.length;
        
-       // OFFLINE SIMULATION: Verify anyway if offline logic triggered
        const updatedProfile = {
           ...profile, 
           ticketVerified: true, 
           ticketDetails: {
-            ticketId, 
-            status: 'used', 
-            zone: zones[idx], 
-            gateName: gates[idx], 
-            seat: `${sections[idx].charAt(0)}${idx+1}-${(sum % 90) + 10}`, 
-            section: sections[idx]
+            ticketId, status: 'used', zone: zones[idx], gateName: gates[idx], 
+            seat: `${sections[idx].charAt(0)}${idx+1}-${(sum % 90) + 10}`, section: sections[idx]
           }
        };
        setProfile(updatedProfile);
