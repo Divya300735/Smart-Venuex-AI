@@ -113,6 +113,7 @@ Run frontend component tests: `cd frontend && npm run test`
 3. **Verify:** HTML5 intrinsic validation and backend Express Validator gracefully handle empty requests without console errors or server failure.
 
 ---
+Deployment Link:https://smart-venuex-ai-24361215382.asia-south1.run.app/
 
 <div align="center">
   <b>Production Scale. Enterprise Security. Seamless Experience.</b><br><br>
