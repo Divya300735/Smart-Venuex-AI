@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 app.use(cors());
@@ -94,7 +95,17 @@ app.get('/api/venue/density', (req, res) => {
   res.json({ ...densities, timestamp: Date.now() });
 });
 
-const PORT = 5000;
-app.listen(PORT, () => {
-    console.log(`Backend Server running on port ${PORT}`);
+// ── Serve the built React frontend (production) ──────────────────────────────
+const publicDir = path.join(__dirname, 'public');
+app.use(express.static(publicDir));
+
+// Catch-all: for any non-API route, send index.html (React Router SPA support)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(publicDir, 'index.html'));
+});
+
+// ── Start server ──────────────────────────────────────────────────────────────
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Smart VenueX Server running on port ${PORT}`);
 });
