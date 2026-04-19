@@ -39,8 +39,10 @@ export default function QRScanner() {
               // Success callback
               html5QrcodeScanner.pause(true);
               setScanStatus('success');
+              console.log(`[QR Flow] Decoded text: ${decodedText}`);
               try {
                 await verifyTicket(decodedText);
+                console.log('[QR Flow] Ticket verification successful');
                 toast.success('Ticket Verified Successfully!', { icon: '✅' });
                 setTimeout(() => navigate('/dashboard'), 1500);
               } catch (err) {
@@ -58,7 +60,7 @@ export default function QRScanner() {
             }
           );
         } catch (e) {
-          console.error("Scanner Error:", e);
+          console.error("[QR Flow] Scanner Initialization Error:", e);
         }
       }, 500);
     }
@@ -72,9 +74,11 @@ export default function QRScanner() {
 
   // For Demo Purposes: Simulate Scanning a QR Code
   const simulateScan = (ticketId) => {
+    console.log(`[QR Flow] Simulating scan for: ${ticketId}`);
     setScanStatus('success');
     verifyTicket(ticketId)
       .then(() => {
+        console.log('[QR Flow] Simulation ticket verified');
         toast.success('Ticket Verified Successfully!', { icon: '✅' });
         setTimeout(() => navigate('/dashboard'), 1500);
       })
@@ -86,7 +90,7 @@ export default function QRScanner() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <main className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
       
       {/* Decorative Orbs */}
       <motion.div animate={{ scale:[1, 1.2, 1], opacity:[0.1, 0.2, 0.1] }} transition={{duration: 8, repeat: Infinity}} 
@@ -175,6 +179,7 @@ export default function QRScanner() {
           <div className="mt-6 border-t border-white/10 pt-5 text-center">
             <button
               onClick={() => simulateScan(`TKT-FAN-${Math.floor(Math.random() * 1000)}`)}
+              aria-label="Simulate scanning a digital ticket"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-bold bg-cyan-500/10 border border-cyan-500/30 hover:bg-cyan-500/20 transition-all duration-300 text-cyan-400 tracking-widest uppercase"
             >
               <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
@@ -184,12 +189,12 @@ export default function QRScanner() {
         </motion.div>
         
         <div className="mt-6 text-center">
-            <button onClick={logout} className="inline-flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-white transition">
-                <LogOut size={16} /> Sign Out
+            <button onClick={logout} aria-label="Sign Out" className="inline-flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-white transition">
+                <LogOut size={16} aria-hidden="true" /> Sign Out
             </button>
         </div>
 
       </div>
-    </div>
+    </main>
   );
 }

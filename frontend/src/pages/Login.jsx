@@ -35,9 +35,12 @@ export default function Login() {
     }
 
     setLoading(true);
+    const safeEmail = email.trim();
+    console.log(`[Auth Flow] Attempting ${tab} for: ${safeEmail}`);
     try {
       if (tab === 'signup') {
-        await signup(email, password, firstName.trim());
+        await signup(safeEmail, password, firstName.trim());
+        console.log('[Auth Flow] Signup successful.');
         setSuccess('Account created! You can now sign in.');
         // auto switch to sign in tab after signup
         setTimeout(() => {
@@ -46,9 +49,11 @@ export default function Login() {
           setPassword('');
         }, 1800);
       } else {
-        await login(email, password);
+        await login(safeEmail, password);
+        console.log('[Auth Flow] Login successful.');
       }
     } catch (err) {
+      console.error('[Auth Flow] Error:', err.message);
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
@@ -63,7 +68,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
+    <main className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
 
       {/* Background orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -102,6 +107,9 @@ export default function Login() {
               { id: 'login',  label: 'Sign In' },
             ].map(t => (
               <button key={t.id} onClick={() => switchTab(t.id)}
+                aria-label={`Switch to ${t.label} tab`}
+                aria-selected={tab === t.id}
+                role="tab"
                 className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200
                   ${tab === t.id
                     ? 'bg-white text-indigo-700 shadow-sm border border-slate-200'
@@ -111,7 +119,7 @@ export default function Login() {
             ))}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
 
             {/* First Name — signup only */}
             <AnimatePresence>
@@ -172,8 +180,9 @@ export default function Login() {
                     focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition placeholder:text-slate-400"
                 />
                 <button type="button" onClick={() => setShowPw(p => !p)}
+                  aria-label={showPw ? "Hide password" : "Show password"}
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition">
-                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPw ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
                 </button>
               </div>
               {tab === 'signup' && (
@@ -236,6 +245,6 @@ export default function Login() {
           By signing up you agree to our Terms of Service and Privacy Policy.
         </p>
       </motion.div>
-    </div>
+    </main>
   );
 }

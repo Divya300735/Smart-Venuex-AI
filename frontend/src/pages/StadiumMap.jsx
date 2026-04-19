@@ -38,17 +38,17 @@ export default function StadiumMap() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <main className="min-h-screen bg-slate-50 flex flex-col">
 
       {/* Header */}
       <header className="flex items-center justify-between px-6 md:px-10 py-5 border-b border-slate-200 sticky top-0 z-30 bg-white/90 backdrop-blur-xl shadow-sm">
-        <button onClick={() => navigate('/dashboard')}
-          className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors">
-          <ArrowLeft size={20}/> <span className="text-base font-semibold">Dashboard View</span>
+        <button onClick={() => navigate('/dashboard')} aria-label="Go back to Dashboard"
+          className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors focus:ring-2 focus:ring-indigo-500 rounded p-1">
+          <ArrowLeft size={20} aria-hidden="true"/> <span className="text-base font-semibold">Dashboard View</span>
         </button>
         <div className="font-orbitron text-xl font-bold text-slate-900 tracking-tight hidden sm:block">INTERACTIVE MAP</div>
-        <button onClick={() => setShowNav(true)} className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold flex items-center gap-2 shadow-sm transition">
-          <Navigation size={18}/> Navigation
+        <button onClick={() => setShowNav(true)} aria-label="Open Navigation Directions" className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold flex items-center gap-2 shadow-sm transition focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500">
+          <Navigation size={18} aria-hidden="true"/> Navigation
         </button>
       </header>
 
@@ -59,7 +59,7 @@ export default function StadiumMap() {
           <div className="relative w-full max-w-2xl aspect-square bg-white rounded-[40px] shadow-sm border border-slate-200 p-8">
 
             {/* Stadium background oval */}
-            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full p-4 pointer-events-none">
+            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full p-4 pointer-events-none" aria-label="Interactive Stadium Map" role="img">
               {/* Outer ring */}
               <ellipse cx="50" cy="50" rx="46" ry="46"
                 fill="none" stroke="rgba(226,232,240,1)" strokeWidth="1"/>
@@ -142,7 +142,7 @@ export default function StadiumMap() {
                  return (
                    <motion.div key={f.id} title={f.name} className="absolute z-20 w-8 h-8 rounded-full bg-white border-2 border-indigo-100 shadow-md flex items-center justify-center text-sm" style={{ left:`calc(${zone.x + offsetX}%)`, top:`calc(${zone.y + offsetY}%)`, transform:'translate(-50%,-50%)' }}>
                       {f.avatar}
-                      <div className="absolute -bottom-4 bg-white/90 backdrop-blur-sm text-[9px] font-bold px-1.5 rounded-md text-indigo-900 border border-indigo-100 whitespace-nowrap shadow-sm">{f.name}</div>
+                      <div className="absolute -bottom-4 bg-white/90 backdrop-blur-sm text-xs font-bold px-1.5 rounded-md text-indigo-900 border border-indigo-100 whitespace-nowrap shadow-sm">{f.name}</div>
                    </motion.div>
                  );
               })}
@@ -192,8 +192,8 @@ export default function StadiumMap() {
             {selected && (
               <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} exit={{opacity:0, height:0}} className="overflow-hidden">
                 <div className={`p-6 rounded-2xl bg-white border shadow-sm relative ${selected.label==='critical'?'border-rose-300 shadow-[0_5px_20px_rgba(225,29,72,0.15)]':'border-slate-200'}`}>
-                  <button onClick={() => setSelected(null)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 bg-slate-50 p-1 rounded-full transition">
-                    <X size={16}/>
+                  <button aria-label="Close Zone Detail" onClick={() => setSelected(null)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 bg-slate-50 p-1 rounded-full transition focus:ring-2 focus:ring-slate-400">
+                    <X size={16} aria-hidden="true"/>
                   </button>
                   <h3 className="text-xl font-bold text-slate-900 tracking-tight pr-6">{selected.labelName || selected.zone || selected.id}</h3>
                   <div className="text-sm text-gray-500 font-medium capitalize mt-1 mb-5">{selected.type} Area · Live Monitoring Active</div>
@@ -240,7 +240,7 @@ export default function StadiumMap() {
                      <span className="text-sm font-semibold text-slate-800 tracking-tight">{zone.label}</span>
                      <div className="flex items-center gap-3">
                        <span className="text-xs text-gray-500 capitalize">{label}</span>
-                       <div className="px-2.5 py-1 rounded-md text-xs font-bold" style={{backgroundColor: `${ZONE_COLORS[label].bg}`, color:c}}>
+                       <div className="px-2.5 py-1 rounded-md text-sm font-bold" style={{backgroundColor: `${ZONE_COLORS[label].bg}`, color:c}}>
                          {density}%
                        </div>
                      </div>
@@ -263,11 +263,11 @@ export default function StadiumMap() {
               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-500 to-cyan-400"></div>
               
               <div className="flex items-center justify-between mb-8 mt-2">
-                <div className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
-                  <div className="p-2 bg-indigo-50 border border-indigo-100 rounded-xl text-indigo-600"><MapPin size={24}/></div>
+                 <div className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
+                  <div className="p-2 bg-indigo-50 border border-indigo-100 rounded-xl text-indigo-600" aria-hidden="true"><MapPin size={24}/></div>
                    Live Guidance
                 </div>
-                <button onClick={() => setShowNav(false)} className="text-slate-400 bg-slate-50 p-2 rounded-full hover:bg-slate-100 hover:text-slate-700 transition"><X size={20}/></button>
+                <button aria-label="Close Navigation" onClick={() => setShowNav(false)} className="text-slate-400 bg-slate-50 p-2 rounded-full hover:bg-slate-100 hover:text-slate-700 transition focus:ring-2 focus:ring-slate-400"><X size={20} aria-hidden="true"/></button>
               </div>
               
               <div className="space-y-4">
@@ -301,6 +301,6 @@ export default function StadiumMap() {
         )}
       </AnimatePresence>
 
-    </div>
+    </main>
   );
 }

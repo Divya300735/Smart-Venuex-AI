@@ -113,12 +113,12 @@ export default function Dashboard() {
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" /> 
             <span className="text-xs font-bold text-emerald-700 tracking-wide uppercase">Live Sync Active</span>
           </div>
-          <button onClick={() => toast.success("All systems optimal. No active alerts.", { icon: '🔔' })} className="relative w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition shadow-sm">
-            <Bell size={20} className="text-slate-600" />
-            {suggestions.length > 0 && <span className="absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-rose-500 border-2 border-white animate-ping" />}
+          <button onClick={() => toast.success("All systems optimal. No active alerts.", { icon: '🔔' })} aria-label="Notifications" className="relative w-12 h-12 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center hover:bg-slate-200 transition shadow-sm">
+            <Bell size={20} className="text-slate-700" />
+            {suggestions.length > 0 && <span className="absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-rose-600 border-2 border-white animate-ping" />}
           </button>
-          <button onClick={logout} className="w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-rose-50 hover:border-rose-200 transition shadow-sm group">
-            <LogOut size={20} className="text-slate-600 group-hover:text-rose-600 transition" />
+          <button onClick={logout} aria-label="Sign Out" className="w-12 h-12 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center hover:bg-rose-50 hover:border-rose-300 transition shadow-sm group">
+            <LogOut size={20} className="text-slate-700 group-hover:text-rose-600 transition" />
           </button>
         </div>
       </header>
@@ -253,13 +253,13 @@ export default function Dashboard() {
                    <Users size={20} />
                    <h3 className="text-sm font-extrabold uppercase tracking-widest">Group Tracker</h3>
                 </div>
-                <button onClick={() => {
+                <button aria-label="Add a group tracking member" onClick={() => {
                   const name = prompt("Enter your friend's name:");
                   if (name) {
-                     addFriend(name);
-                     toast.success(name + " added to Group Tracker!");
+                     addFriend(name.trim());
+                     toast.success(name.trim() + " added to Group Tracker!");
                   }
-                }} className="text-xs bg-indigo-50 text-indigo-600 px-3 py-1 font-bold rounded-lg hover:bg-indigo-100 transition">Add</button>
+                }} className="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 font-bold rounded-lg hover:bg-indigo-200 transition focus:ring-2 focus:ring-indigo-500">Add</button>
              </div>
              
              <div className="space-y-3 relative z-10">
@@ -290,7 +290,7 @@ export default function Dashboard() {
           <div>
             <h3 className="text-sm font-extrabold text-slate-500 uppercase tracking-widest mb-4 border-b border-slate-200 pb-2">Digital Pass</h3>
 
-            <div onClick={() => setTicketFlipped(f => !f)} className="cursor-pointer group" style={{ perspective: 1200 }}>
+            <button aria-label="Flip digital ticket to view QR code" onClick={() => setTicketFlipped(f => !f)} className="w-full text-left cursor-pointer group focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-3xl" style={{ perspective: 1200 }}>
               <motion.div animate={{ rotateY: ticketFlipped ? 180 : 0 }} transition={{ type: "spring", stiffness: 260, damping: 20 }}
                 style={{ transformStyle: 'preserve-3d', position: 'relative', height: 260 }} className="w-full">
 
@@ -312,22 +312,22 @@ export default function Dashboard() {
 
                     <div className="grid grid-cols-3 gap-3">
                       <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 text-center">
-                        <p className="text-indigo-200 text-[10px] font-bold uppercase tracking-wider mb-1">Seat</p>
+                        <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">Seat</p>
                         <p className="text-white font-black text-xl tracking-tight">{td.seat || 'E7-23'}</p>
                       </div>
                       <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 text-center">
-                        <p className="text-indigo-200 text-[10px] font-bold uppercase tracking-wider mb-1">Gate</p>
+                        <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">Gate</p>
                         <p className="text-white font-black text-xl tracking-tight">{td.gateName?.replace('Gate ', '') || 'A'}</p>
                       </div>
                       <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 text-center">
-                        <p className="text-indigo-200 text-[10px] font-bold uppercase tracking-wider mb-1">Row</p>
+                        <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">Row</p>
                         <p className="text-white font-black text-xl tracking-tight">{td.row?.replace('Row ', '') || '7'}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between pt-2">
                        <div>
-                         <p className="text-indigo-200 text-[10px] font-bold uppercase tracking-wider">Section Zone</p>
+                         <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider">Section Zone</p>
                          <p className="text-white text-sm font-bold uppercase tracking-wide mt-0.5">{td.section || 'East Upper Tier'}</p>
                        </div>
                        <div className="flex items-center gap-2 bg-emerald-500/20 border border-emerald-400/50 rounded-full px-4 py-1.5">
@@ -342,15 +342,15 @@ export default function Dashboard() {
                 <div className="absolute inset-0 rounded-[32px] bg-white border-2 border-slate-200 shadow-xl overflow-hidden flex flex-col items-center justify-center p-8"
                   style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
                   <div className="w-32 h-32 bg-white rounded-2xl border-4 border-slate-100 flex items-center justify-center shadow-inner relative overflow-hidden mb-4 p-2">
-                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${td.ticketId || 'TKT-VIP-999'}`} alt="QR" className="w-full h-full object-contain mix-blend-multiply opacity-90"/>
+                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${td.ticketId || 'TKT-VIP-999'}`} alt="Scan this QR code to access your digital pass" className="w-full h-full object-contain mix-blend-multiply opacity-90"/>
                     <div className="absolute left-0 right-0 h-1 bg-emerald-400/50 shadow-[0_0_10px_#34d399] animate-[scan-line_2s_ease-in-out_infinite_alternate] z-10" />
                   </div>
                   <p className="font-orbitron font-bold tracking-widest text-slate-800 mb-2">SCAN TO ENTER</p>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Tap to flip back</p>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Tap to flip back</p>
                 </div>
 
               </motion.div>
-            </div>
+            </button>
           </div>
 
           {/* Simulated Indoor Position Tracking Marker */}
@@ -429,12 +429,12 @@ export default function Dashboard() {
           {voiceText && (
              <motion.div initial={{opacity:0, x:20, scale:0.9}} animate={{opacity:1, x:0, scale:1}} exit={{opacity:0, scale:0.8}} 
                className="bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl border border-slate-700 text-sm font-bold flex items-center gap-3">
-               <Waves size={16} className="text-cyan-400 animate-pulse"/> {voiceText}
+               <Waves size={16} className="text-cyan-400 animate-pulse" aria-hidden="true"/> {voiceText}
              </motion.div>
           )}
         </AnimatePresence>
-        <button onClick={toggleVoiceBot} className={`w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 border-2 ${isListening ? 'bg-rose-600 text-white border-rose-400 animate-pulse' : 'bg-indigo-600 text-white border-indigo-400 hover:bg-indigo-500 hover:scale-105'}`}>
-           {isListening ? <MicOff size={24}/> : <Mic size={24}/>}
+        <button onClick={toggleVoiceBot} aria-label={isListening ? "Stop listening" : "Start voice assistant"} className={`w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 border-2 focus:outline-none focus:ring-4 focus:ring-indigo-300 ${isListening ? 'bg-rose-600 text-white border-rose-400 animate-pulse' : 'bg-indigo-600 text-white border-indigo-400 hover:bg-indigo-700 hover:scale-105'}`}>
+           {isListening ? <MicOff size={24} aria-hidden="true"/> : <Mic size={24} aria-hidden="true"/>}
         </button>
       </div>
 

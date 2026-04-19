@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const { body, validationResult } = require('express-validator');
 const path = require('path');
 
 const app = express();
@@ -32,24 +33,53 @@ function makeUser(email) {
   };
 }
 
-app.post('/api/auth/login', async (req, res) => {
-  const { email, password } = req.body;
-  await delay(800);
-  mockUser = makeUser(email);
-  res.json({ user: mockUser });
+app.post('/api/auth/login', [
+  body('email').isEmail().withMessage('Invalid email format'),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { email, password } = req.body;
+    await delay(800);
+    mockUser = makeUser(email);
+    res.json({ user: mockUser });
+  } catch (err) {
+    console.error('[API Error] /api/auth/login: ', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
-app.post('/api/auth/signup', async (req, res) => {
-  const { email, password } = req.body;
-  await delay(1000);
-  mockUser = makeUser(email);
-  res.json({ user: mockUser });
+app.post('/api/auth/signup', [
+  body('email').isEmail().withMessage('Invalid email format'),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+       return res.status(400).json({ errors: errors.array() });
+    }
+    const { email, password } = req.body;
+    await delay(1000);
+    mockUser = makeUser(email);
+    res.json({ user: mockUser });
+  } catch (err) {
+    console.error('[API Error] /api/auth/signup: ', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 app.post('/api/auth/logout', async (req, res) => {
-  await delay(300);
-  mockUser = null;
-  res.json({ success: true });
+  try {
+    await delay(300);
+    mockUser = null;
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[API Error] /api/auth/logout: ', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 // --- Tickets Verification Logic ---
@@ -59,24 +89,35 @@ const ticketsDB = {
   'INVALID-123':  { ticketId: 'INVALID-123',  userId: 'user2', zone: 'B', status: 'used'  }
 };
 
-app.post('/api/tickets/verify', async (req, res) => {
-  const { ticketId } = req.body;
-  await delay(500);
-  
-  const ticket = ticketsDB[ticketId];
-  if (!ticket) {
-    return res.status(404).json({ error: "Invalid Ticket - Not Found" });
+app.post('/api/tickets/verify', [
+  body('ticketId').notEmpty().trim().escape().withMessage('Ticket ID is required')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+       return res.status(400).json({ errors: errors.array() });
+    }
+    const { ticketId } = req.body;
+    await delay(500);
+    
+    const ticket = ticketsDB[ticketId];
+    if (!ticket) {
+      return res.status(404).json({ error: "Invalid Ticket - Not Found" });
+    }
+    
+    if (ticket.status !== 'valid') {
+      return res.status(400).json({ error: "Ticket Already Used or Invalid" });
+    }
+    
+    // Mark used, then auto-reset after 8s for demo
+    ticketsDB[ticketId].status = 'used';
+    setTimeout(() => { ticketsDB[ticketId].status = 'valid'; }, 8000);
+    
+    res.json({ success: true, message: 'Ticket verified' });
+  } catch (err) {
+    console.error('[API Error] /api/tickets/verify: ', err);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-  
-  if (ticket.status !== 'valid') {
-    return res.status(400).json({ error: "Ticket Already Used or Invalid" });
-  }
-  
-  // Mark used, then auto-reset after 8s for demo
-  ticketsDB[ticketId].status = 'used';
-  setTimeout(() => { ticketsDB[ticketId].status = 'valid'; }, 8000);
-  
-  res.json({ success: true, message: 'Ticket verified' });
 });
 
 // --- Venue Simulation ---
