@@ -11,25 +11,6 @@
 
 ---
 
-## 🛑 Why This Matters
-Building a mapping app is trivial. Making it functional, predictive, and reliable inside a massive concrete stadium with **zero cell phone service** is incredibly difficult.
-
-Standard crowd management applications pipe data directly through constant cloud connections. If the stadium network goes down during a crisis or peak congestion, the app goes blind — this creates a massive, unacceptable safety hazard.
-
-This project exists because **"Cloud-only telemetry" is dangerous by default in high-density environments.** Smart VenueX establishes a mathematically deterministic offline fallback engine that retains full mapping, routing, and crowd-calculation ability even entirely off-the-grid.
-
-## ⚠️ The Problem Statement
-Unbounded stadium attendees are highly vulnerable to:
-* **Dangerous Congestion:** Bottlenecks forming at primary gates leading to crushing hazards.
-* **Network Blackouts:** Complete loss of app functionality when 50,000+ people overload local cell towers.
-* **Separation Anxiety:** Losing friends in massive crowds with no way to text or locate them.
-* **Inefficient Provisioning:** 30-minute wait times for food while stalls on the other side of the stadium are completely empty.
-
-## 🛡️ Our Solution: Smart VenueX
-Smart VenueX is a highly resilient, offline-capable autonomous venue agent built for runtime crowd enforcement and attendee safety. Backed by a seamless Firebase auth flow and wrapped in an immersive Dynamic SVG frontend, the core engine uses a deterministic rule-based AI evaluator to mathematically project crowd flow 10 minutes into the future.
-
----
-
 ## 🌟 Key Features
 
 ### 🎬 Cinematic Live Experience
@@ -224,48 +205,6 @@ You only need **Node.js** installed to run this project. The setup is highly sim
 | `East Stand` | `East Food Court` | 🟠 HIGH (78%) | **REDIRECT** | Routes user to West Food Court |
 | `Gate A` | `Gate A Entry` | 🔴 CRIT (92%) | **EMERGENCY BLOCK** | Broadcasts SOS + "Seek Alternate" |
 | `Offline` | `Any Zone` | 🔵 CACHED | **SIMULATE** | Boots rule-based offline vector pathing |
-
----
-
-## 🎥 Demo Walkthrough (Best Presentation Flow)
-For a powerful live demo, follow these steps:
-
-1. **Safe Read (Green):** Navigate to Dashboard. Click "Map". Show the live stadium layout with pulsing heatmap zones.
-2. **Route Path Demo (Indigo):** Click on "West Stand". Watch as a glowing bezier route curves from your scanned-ticket location across the pitch to the destination.
-3. **Group Tracking (Blue):** Click "Add" in the Group Tracker. Type *"Alex T."* — the avatar instantly appears on the live map.
-4. **Predictive Warning (Orange):** Wait for Gate A to spike red. Point to the AI Intel panel generating a *"Gate A approaching critical"* prediction.
-5. **Food Diversion (Teal):** Open "Venue Dining". Show how wait times change based on live density readings.
-6. **The Air-Gap Drop (Red):** Disable Wi-Fi / use Dev Tools offline mode.
-7. **Offline Handover (Green):** The app instantly switches to Offline Simulated Mode — no crash, no blank screen, continues predicting.
-
-## 💻 Example Runtime Output
-
-```text
-┌──────────────────────────────────────────────────────────┐
-│ ⚡ VENUEX ENGINE ACTIVE | 🛰️ LIVE STADIUM FEED          │
-└──────────────────────────────────────────────────────────┘
-
-[SHIELD_LOG]
-- Detected Zone:    [GATE_A_ENTRY]
-- Velocity Score:   [+4.5% / min]
-- Risk Assessment:  [CRITICAL - CRUSH HAZARD]
-- Policy Decision:  [REROUTE_INITIATED]
-
-⚠️ Warning: Gate A will achieve 98% saturation in ~8 minutes.
-ACTION TAKEN: Redirecting all map pathing to Gate B.
-          Broadcasting structural delay warnings to all verified tickets.
-```
-
----
-
-## 🏆 Judging Criteria Mapping
-
-| Judging Criterion | How We Address It |
-| :--- | :--- |
-| **Innovation & Reliability** | Deterministic offline filtering. The UI physically cannot break during cloud outages. |
-| **Architecture Clarity** | Explicit pipeline: Telemetry Extract → Velocity Gate → SVG Render Overlay. |
-| **Real World Application** | Proven defenses against crowd crushes, lost groups, and long queues at major events. |
-| **AI Integration** | Rule-based velocity engine with predictive 10-min future density projections. |
 
 ---
 
